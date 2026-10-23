@@ -14,6 +14,7 @@ import (
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/launcher"
 	"github.com/go-rod/stealth"
+	"mime/multipart"
 )
 
 type WatchRequest struct {
@@ -126,69 +127,85 @@ func startWatching( job *Job) {
 }
 
 func runCheck(job *Job) bool {
-	found, err:=checkStealth(job.Request.URL, job.Request.Texts, job.Request.StrictURL)
+	found, matchedWord, screenshot, err:=checkStealth(job.Request.URL, job.Request.Texts, job.Request.StrictURL)
 	if err!=nil {
 		log.Printf("[%s] Check error: %v\n", job.ID, err)
 		return false
 	}
 
 	if found {
-		notifyUser(job.Request)
+		notifyUser(job.Request, matchedWord, screenshot)
 		jobsMu.Lock()
 		delete(jobs, job.ID)
 		jobsMu.Unlock()
 		return true
 	} 
-			log.Printf("[%s] Checked page — %v not found yet.\n", job.ID, job.Request.Texts)
+	log.Printf("[%s] Checked page — %v not found yet.\n", job.ID, job.Request.Texts)
 	return false
 
 }
 
-func checkStealth(targetURL string, targetTexts []string, strictURL bool) (bool, error) {
+func checkStealth(targetURL string, targetTexts []string, strictURL bool) (bool,string, []byte,  error) {
 	browserMu.Lock()
 	page,err:=stealth.Page(browser)
 	browserMu.Unlock()
 	if err!=nil {
-		return false, fmt.Errorf("failed to open tab: %w", err)
+		return false, "", nil, fmt.Errorf("failed to open tab: %w", err)
 	}
 	defer page.MustClose()
+
+	// Set a crisp 1280x800 desktop window size so the screenshot looks clean
+	page.MustSetViewport(1280, 800, 1, false)
+
 	err = page.Timeout(25*time.Second).Navigate(targetURL)
 	if err != nil {
-		return false, fmt.Errorf("navigation timeout: %w", err)
+		return false,"", nil,fmt.Errorf("navigation timeout: %w", err)
 	}
 	_= page.Timeout(15*time.Second).WaitStable(1*time.Second)
 	_=strictURL
 	body,err:=page.Timeout(10*time.Second).Element("body")
 
 	if err != nil {
-		return false, fmt.Errorf("could not find body element: %w", err)
+		return false, "", nil,fmt.Errorf("could not find body element: %w", err)
 	}
 
 	bodyText,err:=body.Text()
 
 	if err != nil {
-		return false, fmt.Errorf("could not read text: %w", err)
+		return false,"", nil, fmt.Errorf("could not read text: %w", err)
 	}
 
 	for _,text :=range targetTexts {
 		if strings.Contains(strings.ToLower(bodyText), strings.ToLower(text)) {
-			return true, nil
+			imgBytes, _ := page.Screenshot(false, nil)
+			return true, text, imgBytes, nil
 		}
 	}
-	return false, nil
+	return false,"", nil, nil
 
 }
 
 
-func notifyUser(req WatchRequest) {
-	msg := fmt.Sprintf("🚨 **Match Found!**\nText: `%s`\nURL: %s", req.Texts, req.URL)
+func notifyUser(req WatchRequest, word string, screenshot []byte) {
+	msg := fmt.Sprintf("🚨 **Match Found!**\nText: `%s`\nURL: %s", word, req.URL)
 	switch strings.ToLower(req.NotifyMethod) {
 	case "discord", "webhook":
-		payload:=map[string]string{
-			"content" :msg,
+		var body bytes.Buffer
+		writer := multipart.NewWriter(&body)
+
+		// 1. Add the text message field
+		_ = writer.WriteField("content", msg)
+
+		// 2. Attach the screenshot bytes as "match.png" if we captured one
+		if len(screenshot) > 0 {
+			part, err := writer.CreateFormFile("file", "match.png")
+			if err == nil {
+				_, _ = part.Write(screenshot)
+			}
 		}
-		body,_:=json.Marshal(payload)
-		res,err:=http.Post(req.NotifyTarget, "application/json", bytes.NewBuffer(body))
+		writer.Close()
+
+		res,err:=http.Post(req.NotifyTarget,  writer.FormDataContentType(), &body)
 		if err != nil {
 			log.Printf("Webhook notification error: %v\n", err)
 			return
