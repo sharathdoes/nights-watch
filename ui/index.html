@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stealth Page Watcher</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --danger: #ef4444;
+      --danger-hover: #dc2626;
+      --success: #22c55e;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      padding: 2rem 1rem;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      display: grid;
+      gap: 2rem;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    h1 { font-size: 1.5rem; font-weight: 600; }
+    h2 { font-size: 1.15rem; margin-bottom: 1rem; color: var(--text); }
+
+    .badge {
+      font-size: 0.75rem;
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--success);
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-weight: 500;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 600px) {
+      .row { grid-template-columns: 1fr; }
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+    }
+
+    input[type="text"],
+    input[type="url"],
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 0.65rem 0.85rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      color: var(--text);
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary);
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.25rem;
+    }
+
+    .checkbox-group input {
+      width: 1rem;
+      height: 1rem;
+      accent-color: var(--primary);
+    }
+
+    .checkbox-group label {
+      margin-bottom: 0;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.25rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    button:hover { background: var(--primary-hover); }
+
+    .btn-stop {
+      background: var(--danger);
+      padding: 0.4rem 0.8rem;
+      font-size: 0.8rem;
+    }
+
+    .btn-stop:hover { background: var(--danger-hover); }
+
+    .jobs-list {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .job-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .job-info {
+      overflow: hidden;
+    }
+
+    .job-url {
+      font-weight: 500;
+      color: var(--primary);
+      text-decoration: none;
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 650px;
+    }
+
+    .job-meta {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 0.35rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .tag {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 0.1rem 0.5rem;
+      border-radius: 0.25rem;
+      color: var(--text);
+      font-family: monospace;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: var(--muted);
+      padding: 2rem 0;
+      font-size: 0.95rem;
+    }
+
+    #status-msg {
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>🕵️‍♂️ Stealth Page Watcher</h1>
+      <span class="badge">● Server Online</span>
+    </header>
+
+    <!-- Create Job Card -->
+    <div class="card">
+      <h2>Add New Watch Job</h2>
+      <form id="watch-form" class="form-grid">
+        <div>
+          <label for="url">Target URL</label>
+          <input type="url" id="url" placeholder="https://in.bookmyshow.com/..." required />
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="texts">Texts to Find (comma-separated)</label>
+            <input type="text" id="texts" placeholder="AMB Cinemas, Prasads, PVR" required />
+          </div>
+          <div>
+            <label for="interval">Check Interval (Seconds, min 15)</label>
+            <input type="number" id="interval" value="60" min="15" required />
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="notify_method">Notification Method</label>
+            <select id="notify_method">
+              <option value="discord">Discord / Slack Webhook</option>
+              <option value="console">Server Terminal (Console)</option>
+            </select>
+          </div>
+          <div id="webhook-group">
+            <label for="notify_target">Discord Webhook URL</label>
+            <input type="url" id="notify_target" placeholder="https://discord.com/api/webhooks/..." />
+          </div>
+        </div>
+
+        <div class="checkbox-group">
+          <input type="checkbox" id="strict_url" checked />
+          <label for="strict_url">Strict URL (Ignore page if website redirects to a different date/path)</label>
+        </div>
+
+        <div>
+          <button type="submit">Start Watching</button>
+          <div id="status-msg"></div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Active Jobs Card -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h2 style="margin-bottom: 0;">Active Jobs</h2>
+        <span style="font-size: 0.8rem; color: var(--muted);">Auto-refreshes every 5s</span>
+      </div>
+      <div id="jobs-container" class="jobs-list">
+        <div class="empty-state">Loading active jobs...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('watch-form');
+    const notifyMethod = document.getElementById('notify_method');
+    const webhookGroup = document.getElementById('webhook-group');
+    const jobsContainer = document.getElementById('jobs-container');
+    const statusMsg = document.getElementById('status-msg');
+
+    // Hide webhook URL input if "Console" is selected
+    notifyMethod.addEventListener('change', () => {
+      webhookGroup.style.display = notifyMethod.value === 'console' ? 'none' : 'block';
+    });
+
+    // Fetch and render active jobs
+    async function loadJobs() {
+      try {
+        const res = await fetch('/jobs');
+        const jobs = await res.json();
+
+        if (!jobs || jobs.length === 0) {
+          jobsContainer.innerHTML = '<div class="empty-state">No active watch jobs running right now.</div>';
+          return;
+        }
+
+        jobsContainer.innerHTML = jobs.map(job => {
+          const keywords = Array.isArray(job.text) ? job.text.join(', ') : job.text;
+          return `
+            <div class="job-item">
+              <div class="job-info">
+                <a href="${job.url}" target="_blank" class="job-url" title="${job.url}">${job.url}</a>
+                <div class="job-meta">
+                  <span>Looking for: <strong class="tag">${keywords}</strong></span>
+                  <span>Every: <strong>${job.interval_secs}s</strong></span>
+                  <span>Strict URL: <strong>${job.strict_url ? 'Yes' : 'No'}</strong></span>
+                  <span>ID: <code>${job.id}</code></span>
+                </div>
+              </div>
+              <button class="btn-stop" onclick="stopJob('${job.id}')">Stop</button>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        jobsContainer.innerHTML = '<div class="empty-state">Could not connect to server.</div>';
+      }
+    }
+
+    // Submit new job
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      statusMsg.textContent = 'Starting job...';
+      statusMsg.style.color = '#94a3b8';
+
+      // Split comma-separated string into clean array of strings
+      const rawTexts = document.getElementById('texts').value;
+      const textsArray = rawTexts.split(',').map(t => t.trim()).filter(t => t !== '');
+
+      const payload = {
+        url: document.getElementById('url').value.trim(),
+        texts: textsArray,
+        interval_secs: parseInt(document.getElementById('interval').value, 10),
+        strict_url: document.getElementById('strict_url').checked,
+        notify_method: notifyMethod.value,
+        notify_target: document.getElementById('notify_target').value.trim()
+      };
+
+      try {
+        const res = await fetch('/watch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(errText);
+        }
+
+        statusMsg.textContent = '✅ Job started! First check is running in the background...';
+        statusMsg.style.color = '#22c55e';
+        document.getElementById('texts').value = '';
+        loadJobs();
+      } catch (err) {
+        statusMsg.textContent = '❌ Error: ' + err.message;
+        statusMsg.style.color = '#ef4444';
+      }
+    });
+
+    // Stop a running job
+    async function stopJob(id) {
+      await fetch(`/stop?id=${encodeURIComponent(id)}`, { method: 'POST' });
+      loadJobs();
+    }
+
+    // Initial load + poll every 5 seconds
+    loadJobs();
+    setInterval(loadJobs, 5000);
+  </script>
+</body>
+</html>
