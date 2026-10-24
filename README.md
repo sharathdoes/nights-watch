@@ -1,17 +1,16 @@
-# 🌙 Night's Watch
+#  Night's Watch
 
 A stealth web page monitor built with Go, `go-rod`, and `go-rod/stealth`.
 
 ## What is it?
 
-Night's Watch automatically monitors web pages for specific keywords at custom intervals and sends alerts through Discord, Slack, or the terminal when they appear.
+Night's Watch automatically monitors web pages for specific keywords at custom intervals and sends alerts through Discord, Slack or configured webhook with screenshot.
 
 ## How does it work?
 
 - **Go + go-rod:** Automates a headless browser to load dynamic, JavaScript-rendered pages.
 - **Stealth:** Uses `go-rod/stealth` to reduce basic browser automation detection.
 - **Concurrent Workers:** Runs multiple monitoring jobs with configurable intervals and random jitter.
-- **Notifications:** Sends alerts through Discord/Slack webhooks with screenshots.
 - **Web Dashboard:** Provides a minimal dark-mode UI to start, monitor, and stop jobs.
 
 ## Why build this? (silly)
