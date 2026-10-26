@@ -3,226 +3,174 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Stealth Page Watcher</title>
-
 <style>
 :root {
-  --bg:#0f172a; --card:#1e293b; --border:#334155;
-  --text:#f8fafc; --muted:#94a3b8; --primary:#3b82f6;
-  --danger:#ef4444; --success:#22c55e;
+  --bg:#0f172a;--card:#1e293b;--border:#334155;
+  --text:#f8fafc;--muted:#94a3b8;--primary:#3b82f6;
+  --danger:#ef4444;--success:#22c55e;
 }
-* { box-sizing:border-box; margin:0; padding:0; }
-body {
-  font-family:system-ui,sans-serif; background:var(--bg);
-  color:var(--text); padding:2rem 1rem; line-height:1.5;
-}
-.container { max-width:900px; margin:auto; display:grid; gap:2rem; }
-header,.job-item,.row {
-  display:flex; justify-content:space-between; align-items:center; gap:1rem;
-}
-header { border-bottom:1px solid var(--border); padding-bottom:1rem; }
-h1 { font-size:1.5rem; }
-h2 { font-size:1.15rem; margin-bottom:1rem; }
-.card {
-  background:var(--card); border:1px solid var(--border);
-  border-radius:.75rem; padding:1.5rem;
-}
-.form-grid,.jobs-list { display:grid; gap:1rem; }
-.row { display:grid; grid-template-columns:1fr 1fr; }
-label { display:block; font-size:.85rem; color:var(--muted); margin-bottom:.35rem; }
-input,select {
-  width:100%; padding:.65rem .85rem; background:var(--bg);
-  border:1px solid var(--border); border-radius:.5rem;
-  color:var(--text); font-size:.95rem;
-}
-input:focus,select:focus { border-color:var(--primary); outline:none; }
-.checkbox-group { display:flex; align-items:center; gap:.5rem; }
-.checkbox-group input { accent-color:var(--primary); }
-.checkbox-group label { margin:0; color:var(--text); }
-button {
-  background:var(--primary); color:white; border:0;
-  padding:.75rem 1.25rem; border-radius:.5rem;
-  font-weight:600; cursor:pointer;
-}
-button:hover { filter:brightness(.9); }
-.btn-stop { background:var(--danger); padding:.4rem .8rem; font-size:.8rem; }
-.badge { color:var(--success); font-size:.75rem; }
-.job-item {
-  background:var(--bg); border:1px solid var(--border);
-  border-radius:.5rem; padding:1rem;
-}
-.job-info { overflow:hidden; }
-.job-url {
-  display:block; color:var(--primary); text-decoration:none;
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-}
-.job-meta {
-  display:flex; flex-wrap:wrap; gap:.75rem;
-  font-size:.85rem; color:var(--muted); margin-top:.35rem;
-}
-.tag { color:var(--text); font-family:monospace; }
-.empty-state { text-align:center; color:var(--muted); padding:2rem 0; }
-#status-msg { font-size:.9rem; margin-top:.5rem; }
-@media(max-width:600px) { .row { grid-template-columns:1fr; } }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--text);padding:2rem 1rem;line-height:1.5}
+.container{max-width:900px;margin:auto;display:grid;gap:2rem}
+header,.job-item,.row{display:flex;justify-content:space-between;align-items:center;gap:1rem}
+header{border-bottom:1px solid var(--border);padding-bottom:1rem}
+h1{font-size:1.5rem}h2{font-size:1.15rem;margin-bottom:1rem}
+.card{background:var(--card);border:1px solid var(--border);border-radius:.75rem;padding:1.5rem}
+.form-grid,.jobs-list{display:grid;gap:1rem}
+.row{display:grid;grid-template-columns:1fr 1fr}
+label{display:block;font-size:.85rem;color:var(--muted);margin-bottom:.35rem}
+input,select{width:100%;padding:.65rem .85rem;background:var(--bg);border:1px solid var(--border);border-radius:.5rem;color:var(--text);font-size:.95rem}
+input:focus,select:focus{border-color:var(--primary);outline:none}
+.checkbox-group{display:flex;align-items:center;gap:.5rem}
+.checkbox-group input{accent-color:var(--primary)}
+.checkbox-group label{margin:0;color:var(--text)}
+button{background:var(--primary);color:white;border:0;padding:.75rem 1.25rem;border-radius:.5rem;font-weight:600;cursor:pointer}
+button:hover{filter:brightness(.9)}
+.btn-stop{background:var(--danger);padding:.4rem .8rem;font-size:.8rem}
+.badge{color:var(--success);font-size:.75rem}
+.job-item{background:var(--bg);border:1px solid var(--border);border-radius:.5rem;padding:1rem}
+.job-info{overflow:hidden}
+.job-url{display:block;color:var(--primary);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.job-meta{display:flex;flex-wrap:wrap;gap:.75rem;font-size:.85rem;color:var(--muted);margin-top:.35rem}
+.tag{color:var(--text);font-family:monospace}
+.empty-state{text-align:center;color:var(--muted);padding:2rem 0}
+#status-msg{font-size:.9rem;margin-top:.5rem}
+@media(max-width:600px){.row{grid-template-columns:1fr}}
 </style>
 </head>
-
 <body>
 <div class="container">
-
 <header>
-  <h1>🕵️‍♂️ Stealth Page Watcher</h1>
-  <span class="badge">● Server Online</span>
+<h1>🕵️‍♂️ Stealth Page Watcher</h1>
+<span class="badge">● Server Online</span>
 </header>
 
 <section class="card">
 <h2>Add New Watch Job</h2>
-
 <form id="watch-form" class="form-grid">
-
 <div>
-  <label for="url">Target URL</label>
-  <input type="url" id="url" placeholder="https://in.bookmyshow.com/..." required>
+<label for="url">Target URL</label>
+<input type="url" id="url" placeholder="https://in.bookmyshow.com/..." required>
 </div>
-
 <div class="row">
-  <div>
-    <label for="texts">Texts to Find (comma-separated)</label>
-    <input id="texts" placeholder="AMB Cinemas, Prasads, PVR" required>
-  </div>
-  <div>
-    <label for="interval">Check Interval (Seconds, min 15)</label>
-    <input type="number" id="interval" value="60" min="15" required>
-  </div>
+<div>
+<label for="texts">Texts to Find (comma-separated)</label>
+<input id="texts" placeholder="AMB Cinemas, Prasads, PVR" required>
 </div>
-
+<div>
+<label for="interval">Check Interval (Seconds, min 15)</label>
+<input type="number" id="interval" value="60" min="15" required>
+</div>
+</div>
 <div class="row">
-  <div>
-    <label for="notify_method">Notification Method</label>
-    <select id="notify_method">
-      <option value="discord">Discord / Slack Webhook</option>
-      <option value="console">Server Terminal (Console)</option>
-    </select>
-  </div>
-  <div id="webhook-group">
-    <label for="notify_target">Discord Webhook URL</label>
-    <input type="url" id="notify_target" placeholder="https://discord.com/api/webhooks/...">
-  </div>
+<div>
+<label for="notify_method">Notification Method</label>
+<select id="notify_method">
+<option value="discord">Discord / Slack Webhook</option>
+<option value="console">Server Terminal (Console)</option>
+</select>
 </div>
-
+<div id="webhook-group">
+<label for="notify_target">Discord Webhook URL</label>
+<input type="url" id="notify_target" placeholder="https://discord.com/api/webhooks/...">
+</div>
+</div>
 <div class="checkbox-group">
-  <input type="checkbox" id="strict_url" checked>
-  <label for="strict_url">Strict URL (Ignore page if website redirects to a different date/path)</label>
+<input type="checkbox" id="strict_url" checked>
+<label for="strict_url">Strict URL (Ignore page if website redirects to a different date/path)</label>
 </div>
-
 <div>
-  <button type="submit">Start Watching</button>
-  <div id="status-msg"></div>
+<button type="submit">Start Watching</button>
+<div id="status-msg"></div>
 </div>
-
 </form>
 </section>
 
 <section class="card">
 <header>
-  <h2 style="margin:0">Active Jobs</h2>
-  <span style="font-size:.8rem;color:var(--muted)">Auto-refreshes every 5s</span>
+<h2 style="margin:0">Active Jobs</h2>
+<span style="font-size:.8rem;color:var(--muted)">Auto-refreshes every 5s</span>
 </header>
 <div id="jobs-container" class="jobs-list">
-  <div class="empty-state">Loading active jobs...</div>
+<div class="empty-state">Loading active jobs...</div>
 </div>
 </section>
-
 </div>
 
 <script>
-const $ = id => document.getElementById(id);
-const form = $('watch-form');
-const method = $('notify_method');
-const webhook = $('webhook-group');
-const jobs = $('jobs-container');
-const status = $('status-msg');
+const $=id=>document.getElementById(id);
+const form=$('watch-form'),method=$('notify_method');
+const webhook=$('webhook-group'),jobs=$('jobs-container'),status=$('status-msg');
 
-method.addEventListener('change', () => {
-  webhook.style.display = method.value === 'console' ? 'none' : 'block';
-});
+method.onchange=()=>webhook.hidden=method.value==='console';
 
-async function loadJobs() {
-  try {
-    const res = await fetch('/jobs');
-    if (!res.ok) throw new Error();
-    const data = await res.json();
-
-    if (!data?.length) {
-      jobs.innerHTML = '<div class="empty-state">No active watch jobs running right now.</div>';
+async function loadJobs(){
+  try{
+    const res=await fetch('/jobs');
+    if(!res.ok)throw Error();
+    const data=await res.json();
+    if(!data?.length){
+      jobs.innerHTML='<div class="empty-state">No active watch jobs running right now.</div>';
       return;
     }
-
-    jobs.innerHTML = data.map(job => {
-      const keywords = Array.isArray(job.text) ? job.text.join(', ') : job.text;
-      return `
-        <div class="job-item">
-          <div class="job-info">
-            <a href="${job.url}" target="_blank" rel="noopener noreferrer"
-               class="job-url" title="${job.url}">${job.url}</a>
-            <div class="job-meta">
-              <span>Looking for: <strong class="tag">${keywords}</strong></span>
-              <span>Every: <strong>${job.interval_secs}s</strong></span>
-              <span>Strict URL: <strong>${job.strict_url ? 'Yes' : 'No'}</strong></span>
-              <span>ID: <code>${job.id}</code></span>
-            </div>
+    jobs.innerHTML=data.map(job=>{
+      const keywords=Array.isArray(job.text)?job.text.join(', '):job.text;
+      return `<div class="job-item">
+        <div class="job-info">
+          <a href="${job.url}" target="_blank" rel="noopener noreferrer" class="job-url">${job.url}</a>
+          <div class="job-meta">
+            <span>Looking for: <strong class="tag">${keywords}</strong></span>
+            <span>Every: <strong>${job.interval_secs}s</strong></span>
+            <span>Strict URL: <strong>${job.strict_url?'Yes':'No'}</strong></span>
+            <span>ID: <code>${job.id}</code></span>
           </div>
-          <button class="btn-stop" onclick="stopJob('${job.id}')">Stop</button>
-        </div>`;
+        </div>
+        <button class="btn-stop" onclick="stopJob('${job.id}')">Stop</button>
+      </div>`;
     }).join('');
-
-  } catch {
-    jobs.innerHTML = '<div class="empty-state">Could not connect to server.</div>';
+  }catch{
+    jobs.innerHTML='<div class="empty-state">Could not connect to server.</div>';
   }
 }
 
-form.addEventListener('submit', async e => {
+form.onsubmit=async e=>{
   e.preventDefault();
-  status.textContent = 'Starting job...';
-  status.style.color = 'var(--muted)';
-
-  const payload = {
-    url: $('url').value.trim(),
-    texts: $('texts').value.split(',').map(t => t.trim()).filter(Boolean),
-    interval_secs: parseInt($('interval').value, 10),
-    strict_url: $('strict_url').checked,
-    notify_method: method.value,
-    notify_target: $('notify_target').value.trim()
+  status.textContent='Starting job...';
+  status.style.color='var(--muted)';
+  const payload={
+    url:$('url').value.trim(),
+    texts:$('texts').value.split(',').map(t=>t.trim()).filter(Boolean),
+    interval_secs:parseInt($('interval').value,10),
+    strict_url:$('strict_url').checked,
+    notify_method:method.value,
+    notify_target:$('notify_target').value.trim()
   };
-
-  try {
-    const res = await fetch('/watch', {
+  try{
+    const res=await fetch('/watch',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify(payload)
     });
-
-    if (!res.ok) throw new Error(await res.text());
-
-    status.textContent = '✅ Job started! First check is running in the background...';
-    status.style.color = 'var(--success)';
-    $('texts').value = '';
+    if(!res.ok)throw Error(await res.text());
+    status.textContent='✅ Job started! First check is running in the background...';
+    status.style.color='var(--success)';
+    $('texts').value='';
     loadJobs();
-
-  } catch(err) {
-    status.textContent = '❌ Error: ' + err.message;
-    status.style.color = 'var(--danger)';
+  }catch(err){
+    status.textContent='❌ Error: '+err.message;
+    status.style.color='var(--danger)';
   }
-});
+};
 
-async function stopJob(id) {
-  await fetch(`/stop?id=${encodeURIComponent(id)}`, {method:'POST'});
+async function stopJob(id){
+  await fetch(`/stop?id=${encodeURIComponent(id)}`,{method:'POST'});
   loadJobs();
 }
 
 loadJobs();
-setInterval(loadJobs, 5000);
+setInterval(loadJobs,5000);
 </script>
 </body>
 </html>
